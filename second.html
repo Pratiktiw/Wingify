@@ -1,0 +1,81 @@
+<html>
+<head></head>
+<body>
+<h2>RSS TO PUSH</h2>
+
+<h3>Suppose you have a website on which there are frequent updates like cricket/football updates or news updates and you want to send these updates to your subscribers. It won’t be a feasible way if you go to your PushCrew account and send out the notification. The RSS-to-push feature of PushCrew enables you to send automated web push notifications to your subscribers every time you update a post or add new content to your blog/website. All you have to do is add an RSS feed URL to your PushCrew dashboard.
+ 
+Frontend Working Functionality:-
+Once the feed URL is added to your dashboard, PushCrew parses the feed every 3 minutes for new post. Whenever a new post is found, it will be created as a new push notification in the One-Time tab to be sent out to all subscribers after 30 minutes. We’ll also send you an email saying that a new post has been detected and will be sent out as a notification. You can edit or delete it from "One-Time" tab within 30 minutes.
+Since the notification will be scheduled and not sent immediately, this feature is only available on Pushcrew account on which notifications can be scheduled, i.e. paid accounts.
+You will be informed via email once a new post is detected and scheduled. You can edit or cancel these posts from getting sent only within 30 minutes of a new post being detected. Editing and canceling can both be done by clicking on the respective icons in the Scheduled Notifications tab only.
+If you cancel an RSS-to-Push notification, it will be shown as an ‘old post’ in the "One-Time" tab.
+You’ll then have to manually send it if you want the same notification to be sent before another new post.
+You can view the stats of RSS-to-Push notifications like Delivery and CTR numbers in the Sent Notifications tab.
+If a new customer creates a PushCrew account and has 0 subscribers, RSS feature will not be applicable since you need to have at least 1 subscriber in order to send RSS notifications.
+If a customer adds an RSS feed for the first time and he has added multiple feeds in the last 24 hours, only 1 feed will be scheduled to be sent to subscribers and not all the feeds. However, If a feed is deleted and then added again, all the new posts which have been published within the last 24 hours will be scheduled to be sent to subscribers.
+
+Notification Title: The first 48 characters of your post title are picked up by default to show the title of your notification. If the title of your post is long, the first 48 characters will only be shown. You can edit the notification title from the "One-Time" tab.
+
+Notification logo: The logo image added to your PushCrew account will be shown by default.
+Notification message: The first 100 characters of the body of your post are picked up by default to show as your notification message. Again, if the post is long, the first 100 characters will only be shown. You can edit it to a crisp summary from the Scheduled Notifications tab.
+
+If you neither want to edit each notification within 30 minutes as discussed above nor want it to be sent with first 48 and 100 characters of title and body respectively, you can add a default title, body message and logo for every notification using the edit options under the ‘Change default notification content’ section. It can be edited or removed as well.
+ 
+Format of an RSS feed:-
+An RSS feed should have the below mentioned details in order to be valid:
+Item tag → Title of the push notification.
+Description tag → Message of the push notification.
+Link → Landing Page URL
+pubdate/updated/published → The timestamp feed is published on the website.
+
+
+Backend Functionality of RSS-To-Push:-
+There are celery jobs configured which are balancing the load which PushCrew gets from thousands of feed URLs maintained in the database. The celery jobs are as below:
+Fetch- CRON is scheduled for this and runs every 6 minutes.
+Send- This job runs every 3 minutes.
+
+Fetch:-
+This is the job responsible for scraping the feed continuously for checking if a new post is published. The new feed URL is added to ‘feeds’ table, where the URL and customer hash form the primary key. It means you cannot have same feed URL registered in DB for same customer hash.
+The job scrapes only the new posts which have been added in the last 30 minutes.
+In case the feed URL is to be reused, just append some random UTM parameters in the URL and it can then be added to your account.
+
+If, due to some error, the feed scraping is stopped, you can check the last_error column for the details. These feeds are then checked for validity once every 24 hours at 12 midnight. If that error is resolved, scraping is started again. All the new feeds which got published in this duration will be populated in ‘late_scraped_feed_entries’ table since there will be a time difference of more than 80 minutes in the pubdate and scrape time. So, we can say that the difference between pubdate and scraped time should be less than 80 minutes.
+
+Feed URL Validity check:-
+
+If the URL is not found valid at midnight, status is changed from 1 to 0 and num_err_attempts is incremented by 1 up to 10. Once this number reaches 10, we don’t check for the feed validity again.
+Send:-
+This is responsible for adding the new feeds to ‘feed_entries’ table and is run every 3 minutes. If the feed is published within 30 minutes of being added to feed_entries table, this is fine. It will be scheduled successfully. Otherwise, it is added in ‘late_scraped_feed_entries’ table and is never scheduled. The reasons for late scraping can be:
+1) Some of the celery jobs are not getting completed.
+2) Feed entries get delayed in scrapping.
+3) There is no time limit on celery tasks. So if any celery task get hanged. it stays like it.
+
+The concrete reasons are still unknown as this is a very unstable feature and work is in progress to address this concern.
+
+Consider the below use case:-
+Hash- 4de0e174fc3b4c389bece17bc2f7f760
+Customer added the feed URL into his account on Wednesday, May 22, 2019 12:28 PM.
+The feed was first scraped on Wednesday, May 22, 2019 1:00 PM. Since there were some errors in the feed URL, all the feeds got populated in the late_scraped_feed_entries table and scraping was stopped temporarily. 
+Now the customer added a new post to his feed on Thu, 23 May 2019 19:00:51. However, since scraping is not happening, this was not taken into account. 
+On Friday, May 24, 2019 12:00 AM, the feed was checked for validity and was found valid and scraping got resumed again.
+Since the difference between scraped time(12:03 AM) and published timestamp of the last feed was more than 80 minutes, it got added to late_scraped_feed_entries table and was never scheduled.
+Now, since the feed is valid, whenever a new post is found, they are being successfully scheduled from his PushCrew account.
+
+
+‘’INVALID_SCHEDULE_REQUEST_ID = {‘Your trial has expired. Please upgrade your account to restore PushCrew services.’:-2,
+‘You have no subscribers.’:-3,
+‘this account has been deleted.’:-4,
+‘this account is inactive.’:-5,
+‘multi account access is no longer available.’:-6,
+‘Schedule notification feature is not available on free plan’:-7,
+‘title, message and link for notification can not be empty’:-8,
+‘Request already processed.’:-9,
+‘API snapped’:-11
+} </h3>
+</body>
+</html>
+
+
+
+
