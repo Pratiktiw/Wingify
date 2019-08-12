@@ -14,7 +14,7 @@
   </script>
   
        <script>
-  var ua = navigator.userAgent;
+       var ua = navigator.userAgent;
        var msie = false;
        var ff = false;
        var chrome = false;
@@ -40,21 +40,21 @@
        }
 
        //Javascript Browser Detection - Chrome
-       if (ua.lastIndexOf('Chrome/') > 0) {
+       if (ua.lastIndexOf('Chrome/') > 0) 
+       {
            var version = ua.substr(ua.lastIndexOf('Chrome/') + 7, 2);
            window._pcq = window._pcq || [];
             window._pcq.push(['triggerOptIn']); //Calls triggerOptIn with default text and default segment(global)\
        }
 
        //Javascript Browser Detection - Safari
-       if (ua.lastIndexOf('Safari/') > 0) {
+       if (ua.lastIndexOf('Safari/') > 0) 
+       {
            var version = ua.substr(ua.lastIndexOf('Safari/') + 7, 2);
            window._pcq = window._pcq || [];
             window._pcq.push(['triggerOptIn']); //Calls triggerOptIn with default text and default segment(global)\
        }
 
-
-       }
        </script>
   </head>
   <body>
