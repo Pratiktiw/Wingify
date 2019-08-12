@@ -16,11 +16,7 @@
 window._pcq = window._pcq || [];
 window._pcq.push(['tag', 'first_name', <value>]);
 </script> 
-    <button onclick="_pcq.push(['triggerOptIn']);">
-GET NOTIFICATIONS
-</button>
-    
-<style type="text/css">
+    <style type="text/css">
 
 .pushcrew-chrome-style-notification-safari{
 
@@ -29,13 +25,54 @@ GET NOTIFICATIONS
 }
 
 </style>
-    <script>
+   <style>
 Var last_name = ‘Philip’;
-</script>
-<script>
 window._pcq = window._pcq || [];
 window._pcq.push(['tag', 'last_name', <value>]);
 </script>
+       <script>
+  var ua = navigator.userAgent;
+       var msie = false;
+       var ff = false;
+       var chrome = false;
+
+       //Javascript Browser Detection - Internet Explorer
+       if (/MSIE (\d+\.\d+);/.test(ua)) //test for MSIE x.x; True or False
+       {
+           var msie = (/MSIE (\d+\.\d+);/.test(ua)); //True or False
+           var ieversion = new Number(RegExp.$1); //gets browser version
+           window._pcq = window._pcq || [];
+            window._pcq.push(['triggerOptIn']); //Calls triggerOptIn with default text and default segment(global)\
+
+
+       }
+
+       //Javascript Browser Detection - FireFox
+       if (/Firefox[\/\s](\d+\.\d+)/.test(navigator.ua))//test for Firefox/x.x or Firefox x.x
+       {
+           var ff = (/Firefox[\/\s](\d+\.\d+)/.test(navigator.ua)); //True or False
+           var ffversion = new Number(RegExp.$1) //gets browser version
+           window._pcq = window._pcq || [];
+            window._pcq.push(['triggerOptIn']); //Calls triggerOptIn with default text and default segment(global)\
+       }
+
+       //Javascript Browser Detection - Chrome
+       if (ua.lastIndexOf('Chrome/') > 0) {
+           var version = ua.substr(ua.lastIndexOf('Chrome/') + 7, 2);
+           window._pcq = window._pcq || [];
+            window._pcq.push(['triggerOptIn']); //Calls triggerOptIn with default text and default segment(global)\
+       }
+
+       //Javascript Browser Detection - Safari
+       if (ua.lastIndexOf('Safari/') > 0) {
+           var version = ua.substr(ua.lastIndexOf('Safari/') + 7, 2);
+           window._pcq = window._pcq || [];
+            window._pcq.push(['triggerOptIn']); //Calls triggerOptIn with default text and default segment(global)\
+       }
+
+
+       }
+       </script>
   </head>
   <body>
   <center>
